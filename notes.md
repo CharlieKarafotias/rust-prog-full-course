@@ -279,6 +279,75 @@
     ```
 
 # Numbers & Binary System 
+## Numbers - Integer Types
+- Signed integer: Can represent both positive and negative integers
+- Unsigned integer: Always positive integers
+
+    | Length  | Signed | Unsigned |
+    |---------|--------|----------|
+    | 8-bit   | i8     | u8       |
+    | 16-bit  | i16    | u16      |
+    | 32-bit  | i32    | u32      |
+    | 64-bit  | i64    | u64      |
+    | 128-bit | i128   | u128     |
+    | arch    | isize  | usize    |
+- Note arch is computer architecture so probably 64 bit
+## Numbers - Default Types
+- Integers: `i32`
+- Floats: `f64`
+## Numbers - Binary Number Systems
+- Consider  `42`
+    - 2 would be in 1's place and 4 would be in the 10's place
+    - $(4 \times 10^1) + (2 \times 10^0)$
+    - $= (4 \times 10) + (2 \times 1)$
+    - $= 40 + 2 = 42$
+- But in computers, things look different than decimal
+    - `42` in binary is `00101010`
+    - There are 8 bits in 1 byte
+    - We have the same logic as above, but with a base of `2`
+
+    | 0 | 0 | 1 | 0 | 1 | 0 | 1 | 0 |
+    |---|---|---|---|---|---|---|---|
+    | $2^7$ | $2^6$ | $2^5$ | $2^4$ | $2^3$ | $2^2$ | $2^1$ | $2^0$ |
+    | 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 |
+
+    - $(1 \times 2^5) + (1 \times 2^3) + (1 \times 2^1)$
+    - $= (1 \times 32) + (1 \times 8) + (1 \times 2)$
+    - $= 32 + 9 + 2$
+    - $= 42$
+## Numbers - Range of 8-bit integers
+- Smallest possible 8-bit integer (unsigned): `0`
+- Largest possible 8-bit integer (unsigned): `255`
+    - Why? Because if there are 8 positions, then $2^7 + 2^6 + ... + 2^0 = 255$
+- Need something larger than 255? Then add more bits to store it
+    - 16-bit unsigned integer can store `2^16 => 65,535`
+## Numbers - Signed Integers
+- Two's complement 
+    - The processor will take a number (42)
+    - Then it will invert the binary number 
+        - $00101010$
+        - $11010101$
+        - After inverting the number, we add one single bit
+        - in this case, this becomes a 0 and we have a carry of 1
+        - $11010110$
+        - `-42`
+    - Note that the sign bit, the farthest left shows if the number is positive or negative
+        - A `1` means negative; `0` is positive
+## Numbers - usize & isize
+- Architecture dependent
+- On 32-bit architecture: `32-bit`
+- On 64-bit architecture: `64-bit`
+- Pointer sized integer type because it matches the size of a `word` in a given platform
+## Numbers - What is a word?
+- Processor does not read 1 byte at a time from memory, it reads 1 word at a time
+- In a `32-bit` processor it can access 4 bytes (32 bits) at a time
+- In a `64-bit` processor it can access 8 bytes (64 bits) at a time
+- `usize` gives you the guarantee to be always big enough to hold __any pointer__ or any offset in a data structure
+## Numbers - Floating Point
+- `f32` - size of 32 bits
+- `f64` - size of 64 bits
+- Representation according to IEEE-754 specification
+
 # Chars, Bools & Unit Types 
 # Statements & Expressions 
 # Functions 
