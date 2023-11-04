@@ -347,8 +347,83 @@
 - `f32` - size of 32 bits
 - `f64` - size of 64 bits
 - Representation according to IEEE-754 specification
+## Numbers - Boolean Logic
+- Boolean logic deals with values that are either "true" or "false" (1 or 0)
+- Three basic operations: AND, OR, NOT
+    - AND
+        - f && f => f
+        - f && t => f
+        - t && f => f
+        - t && t => t
+    - OR
+        - f || f => f
+        - f || t => t
+        - t || f => t
+        - t || t => t
+    - NOT
+        - !false => true
+        - !true => false
+## Numbers - Bitwise Operations
+- Operations that manipulate individual bits that make up a binary number
+- Treating each bit of a bunary number as a separate unit and perform logical operations on them
+- AND, OR, XOR, bitwise shifting
+### Numbers - AND (&)
+- AND returns 1 only when __both__ of its inputs are 1
+- Truth Table
+
+| A | B | Q |
+|---|---|---|
+| 0 | 0 | 0 |
+| 0 | 1 | 0 |
+| 1 | 0 | 0 |
+| 1 | 1 | 1 |
+
+### Numbers - OR (|)
+- OR returns 1 only if __at least one__ of its inputs is 1
+- If both inputs are 0, the output will also be 0.
+- Truth Table
+
+| A | B | Q |
+|---|---|---|
+| 0 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 1 |
+
+### Numbers - XOR (^)
+- XOR returns 1 if the inputs are __different__
+- If both inputs are the __same__, the output will be 0.
+- Truth Table
+
+| A | B | Q |
+|---|---|---|
+| 0 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 0 |
+
+### Numbers - Bitwise Left Shift
+- `1 << 5`
+- `00000000` => `00100000 => 32`
+### Numbers - Bitwise Right Shift
+- `0x80 >> 2 = 128 >> 2`
+- `10000000` => `00100000 => 0x20 => 32`
 
 # Chars, Bools & Unit Types 
+## Char
+- `char` is a single character of size 4 bytes and can store all unicode values
+- `char` is represented like `'c'`
+- Strings use double quotes
+
+## Bool
+- Boolean value can be either `true` or `false`
+- bool is of size 1 byte
+- Negation with `!`
+## Unit type
+- The unit type is an empty tuple of size 0 bytes, used to return "nothing" in expressions or functions
+- Example:
+    - `let _v: () = ();` // unit represented as empty tuple
+
 # Statements & Expressions 
 # Functions 
 # Ownership 
