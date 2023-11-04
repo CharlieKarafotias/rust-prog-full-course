@@ -424,13 +424,233 @@
 - Example:
     - `let _v: () = ();` // unit represented as empty tuple
 
-# Statements & Expressions 
-# Functions 
+# Statements & Expressions
+## Statements
+- Instructions that perform some action but do not produce a value
+- Function definitions are statements, as well as code that ends with `;` (usually)
+## Expressions
+- Will evaluate to a resultant value
+## Example
+```
+fn main() {
+    let x = 5u32;
+
+    let y = {
+        // this is an expression that results in y being 155
+        let x_squared = x * x;
+        let x_cube = x_squared * x;
+
+        // This expression will be assigned to `y`
+        x_cube + x_squared + x // notice no semicolon
+    };
+
+    let z = {
+        // The semicolon suppresses this expression and `()` is assigned to `z`
+        2 * x;
+    };
+
+    println!("x is {:?}", x); // 5
+    println!("y is {:?}", y); // 155
+    println!("z is {:?}", z); // ()
+}
+```
+
+# Functions
+- Block of reusable code that performs a specific task
+- Can take arguments, processes those inputs and returns a result
+- Diverging functions: 
+    - Never return to the caller
+    - E.g. panic, looping forever, quitting the program
+- Create a function with `fn`
+## Function Rules
+- Functions always have to annotate types for their arguments
+- Specify the return type with `->`
+```
+fn sum(x: i32, y: i32) -> i32 {
+    x + y
+}
+```
+- A return type of `!` indicates a diverging function that will never return to the caller
+    - A simple example is with `panic!()`
+    - Other macros that can do this
+        - `unimplemented!()`
+        - `todo!()`
+    ```
+    fn never_return() -> ! {
+        panic!()
+    }
+    ```
+
 # Ownership 
+- Rust's ownership system is unique and sets it apart from other programming languages
+- Set of rules that govern memory management
+- Rules are enforced at compile time
+- If any of the rules are violated, then the program will not compile
+## Three Rules of Ownership
+1) Each value in Rust has an owner
+2) There can only be one owner at a time
+3) When the owner goes out of scope, the value will be dropped 
+
+__Owner__: The owner of a value is the variable or data structure that holds it and is responsible for allocating and freeing the memory used to store that data
+
+## Scope
+- Range within a program for which an item is valid
+- __Global Scope__
+    - Accessible throughout the entire program
+- __Local Scope__
+    - Accessible only within particular function or block of code
+    - Not accessible outside of that function or block 
+- Example:
+    - When s comes into scope, it is valid
+    - It remains valid until it goes out of scope
+    - __General rule:__ Scope ends where block of code ends (curly brackets)
+```
+{   // s is not valid here, it's not yet declared
+    let s = "hello"; // s is valid from this point forward
+    // do stuff with s
+} // this scope is now over, and s is no longer valid
+```
+## Memory
+- Component in a computer to store data and instructions for the processor to execute
+- Random Access Memory (RAM) is volatile, when power turned off all contents are lost
+- Two types of regions in RAM used by a program at runtime:
+    - Stack memory
+    - Heap memory
+### Stack Memory
+- Example
+    - Think of a stack of plates
+    - Take from the top, when you are done, put back on the top of the stack
+- Last in, first out 
+- All data stored on the stack must have a known, fixed size (like integers, floats, char, bool, etc...)
+- Pushing to the stack is faster than allocating on the heap, because the location for new data is always at the top of the stack
+    - Program can access data in the stack at constant time `O(1)`
+- Types of unknown size will get allocated to the heap and a pointer to the value is pushed to the stack, because a pointer is fixed size (usize)
+### Heap Memory
+- Data of no known fixed size belongs on the heap
+- Allocating data on the heap will return a pointer (an address to location where data has been allocated)
+- Allocating on the heap is slower than pushing to stack
+- Accessing data on the heap is also slower, as it has to be accessed using a pointer which points to an address
+- An example of a heap allocated type is the String type
+# The String Type
+- All types covered so far were fixed size
+- `String` is mutable
+- `String` size can change at runtime
+- `String` stored on the stack with a pointer to the heap
+- Value of `String` is stored on the heap
+## Example
+- Initialize a string 
+    - `let s1 = String::from("hello");`
+    - `s1` holds a pointer that points to the data that was allocated on the heap
+- `s1` holds a pointer that stores the memory address
+    - Stack also stores `len` and the `capacity`
+        - `len`: Data size in bytes
+        - `capacity`: Total amount of memory received from the allocator
+    - Because of this, and the fact that it is all `usize` type, the size of the variable `a1` will be 24 bytes (3 * 8 bytes (usize))
+        - These are all known at compile time
+# Ownership: Copy vs. Move
+- Scalar values with fixed sizes (all types we covered at the beginning) will automatically get copied in the stack, copying here is cheap
+- Dynamically sized data won't get copied, but moved, copying would be too expensive
+- Example:
+    - `let x = 5;`
+    - `let y = x;`
+        - Here, the integer value of variable `x` will get copied into `y` and both variables are usable, because i32 value has been copied -> __i32 is fixed size!__
+    - `let s1 = String::from("hello");`
+    - `let s2 = s1;`
+        - As `s1` is just a pointer to data on the __heap__, just the pointer will get copied into __s2__, __NOT__ the whole data on the heap!
+        - Thus, s1 and s2 point to the __same location__ in heap memory
+        - This would __violate the second rule of ownership__ which says that there can only be __ONE owner__ at a time
+            - So, the first variable `s1` will be __dropped__ and cannot be used after assigning it to `s2` to avoid dangling pointers
+## Deep Copy
+- We can do this with `let s2 = s1.clone();`
+    - This must be called explicitly because copying is expensive
+    - But, we will be able to access `s1` after because there was a copy of the actual data in heap memory, not a passing of ownership
+## Ownership and Functions
+```
+fn main() {
+    let s = String::from("hello"); // s comes into scope
+
+    takes_ownership(s);  // s's value (and ownership) moves into the function...
+                         // ... and so s is no longer valid here
+    
+    let x = 5; // x comes into scope
+    makes_copy(x);  // x would move into the function, but
+                    // i32 is Copy, so it's okay to still use x afterward
+} // Here, x goes out of scope, then s. But because s's value was moved, nothing special happens
+
+fn takes_ownership(some_string: String) { // some_string comes into scope
+    println!("{}", some_string);
+} // here, some_string goes out of scope and 'drop' is called. 
+  // The backing memory is freed
+
+fn makes_copy(some_integer: i32) { // some_integer comes into scope
+    println!("{}", some_integer);
+} // Here, some_integer goes out of scope. Nothing special happens
+```
+## Preventing Issues
+- Ownership prevents memory safety issues:
+    - Dangling pointers
+    - Double-free
+        - Trying to free memory that has already been freed
+    - Memory leaks
+        - Not freeing memory that should have been freed
+
+# Borrowing
+
+# String vs. &str
+
+# Slices
+
+# Tuples
+
+# Structs
+
+# Enums
+
+# The "Option" Enum
+
+# Flow Control
+
+# Pattern Match
+
+# Methods & Associated Functions
+
+# Generics
+
+# Traits 
+
+# Trait Objects
+
+# Associated Types
+
+# String
+
+# Vectors 
+
+# HashMaps
+
+# Type Coercion
+
+# From & Into
+
+# panic!
+
+# Result
+
+# Cargo, Crates & Modules
+
+# Debug & Display
+
+# Lifetimes
+
+# Lifetime Elision
+
+# Closures 
+
+# Iterators
 
 # Resources
 - https://www.youtube.com/watch?v=BpPEoZW5IiY
 - The Rust Programming Langauge (Book)
 - Rustlings
 - Rust by Example
-- Rust by Practice (these notes)
+- Rust by Practice: https://practice.rs/why-exercise.html
